@@ -6,8 +6,6 @@ import Data.Maybe (Maybe)
 
 foreign import data HISTORY :: !
 
-type State = String
-
 type PushState state = String -> String -> state -> Eff (history:: HISTORY ) Unit
 
 type History state =
