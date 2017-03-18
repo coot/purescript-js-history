@@ -6,7 +6,6 @@
     "bower_components",
     "output"
   ],
-  "license": "MIT",
   "dependencies": {
     "purescript-prelude": "^2.5.0",
     "purescript-console": "^2.0.0",
@@ -16,5 +15,10 @@
   "devDependencies": {
     "purescript-psci-support": "^2.0.0",
     "purescript-test-unit": "^10.1.0"
-  }
+  },
+  "license": "MIT",
+  "repository": {                                                          
+    "type": "git",                                                         
+    "url": "git://github.com/purescript/purescript-prelude.git"            
+    }
 }
