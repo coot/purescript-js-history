@@ -24,11 +24,11 @@ foreign import _replaceState :: forall state. Unit -> PushState state
 
 browserHistory :: forall state. History state
 browserHistory =
-    { length: _length
-    , state: _state Just Nothing
-    , go: _go unit
-    , back: _back unit
-    , forward: _forward unit
-    , pushState: _pushState unit
-    , replaceState: _replaceState unit
-    }
+  { length: _length
+  , state: _state Just Nothing
+  , go: _go unit
+  , back: _back unit
+  , forward: _forward unit
+  , pushState: _pushState unit
+  , replaceState: _replaceState unit
+  }
