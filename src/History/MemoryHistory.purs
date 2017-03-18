@@ -15,17 +15,17 @@ import History.Types (History, HISTORY)
 import Unsafe.Coerce as U
 
 type HistState state =
-    { current:: Int
-    , history:: Array { name:: String, url:: String, state:: state }
+    { current :: Int
+    , history :: Array { name :: String, url :: String, state :: state }
     }
 
 type EventListener eff = Event -> Eff eff Unit
 
 memoryHistory
   :: forall state eff
-   . Eff (history :: HISTORY, ref:: REF | eff)
-      { history:: History state
-      , addEventListener:: EventType -> EventListener (history:: HISTORY, ref:: REF | eff) -> Eff (history:: HISTORY, ref:: REF | eff) Unit
+   . Eff (history :: HISTORY, ref :: REF | eff)
+      { history :: History state
+      , addEventListener :: EventType -> EventListener (history :: HISTORY, ref :: REF | eff) -> Eff (history :: HISTORY, ref :: REF | eff) Unit
       }
 memoryHistory = do
   ref <- newRef { current: (-1), history: [] }
