@@ -13,6 +13,7 @@ import Control.Monad.Eff.Exception (EXCEPTION)
 import Control.Monad.Eff.Ref (REF, newRef, readRef, modifyRef)
 import Control.Monad.Eff.Unsafe (unsafeCoerceEff)
 import DOM.Event.Types (EventType(..))
+import Data.Newtype (wrap)
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert (assert)
 import Test.Unit.Console (TESTOUTPUT)
@@ -26,6 +27,6 @@ main = runTest do
       mh <- memoryHistory
       mh.addEventListener (EventType "popstate") (\_ -> modifyRef ref (flip A.snoc "id:1"))
       mh.addEventListener (EventType "popstate") (\_ -> modifyRef ref (flip A.snoc "id:1"))
-      unsafeCoerceEff $ mh.history.pushState "next" "next" 0
+      unsafeCoerceEff $ mh.history.pushState 0 (wrap "next") (wrap "next")
       ids <- liftEff $ readRef ref
       liftAff (assert "all eventListeners were called" $ ids == [ "id:1" ])

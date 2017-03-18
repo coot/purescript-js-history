@@ -1,19 +1,17 @@
 module History.Types where
 
-import Prelude (Unit)
 import Control.Monad.Eff (Eff)
+import DOM (DOM)
+import DOM.HTML.History (Delta, DocumentTitle, URL)
+import DOM.HTML.Types (HISTORY)
 import Data.Maybe (Maybe)
+import Prelude (Unit)
 
-foreign import data HISTORY :: !
-
-type PushState state = String -> String -> state -> Eff (history:: HISTORY ) Unit
-
-type History state =
-  { length:: Eff (history:: HISTORY) Int
-  , state:: Eff (history:: HISTORY) (Maybe state)
-  , back:: Eff (history:: HISTORY) Unit
-  , forward:: Eff (history:: HISTORY) Unit
-  , go:: Int -> Eff (history:: HISTORY) Unit
-  , pushState:: PushState state
-  , replaceState:: PushState state
+type History e state =
+  { state :: Eff (history:: HISTORY, dom :: DOM | e) (Maybe state)
+  , back :: Eff (history:: HISTORY, dom :: DOM | e ) Unit
+  , forward :: Eff (history:: HISTORY, dom :: DOM | e) Unit
+  , go :: Delta -> Eff (history:: HISTORY, dom :: DOM | e) Unit
+  , pushState :: state -> DocumentTitle -> URL -> Eff (history :: HISTORY, dom :: DOM | e) Unit
+  , replaceState :: state -> DocumentTitle -> URL -> Eff (history :: HISTORY, dom :: DOM | e) Unit 
   }
