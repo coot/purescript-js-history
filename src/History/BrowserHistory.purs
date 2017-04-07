@@ -2,26 +2,21 @@ module History.BrowserHistory
   ( browserHistory
   ) where
 
+import Prelude (Unit, bind, (>>=))
 import Control.Monad.Eff (Eff)
-import Control.Monad.Except (runExcept)
 import DOM (DOM)
 import DOM.HTML (window)
 import DOM.HTML.History (Delta, DocumentTitle, URL, back, forward, go, pushState, replaceState, state)
 import DOM.HTML.Types (HISTORY)
 import DOM.HTML.Window (history)
-import Data.Either (either)
-import Data.Foreign.Class (class AsForeign, class IsForeign, read, write)
-import Data.Maybe (Maybe(..))
+import Data.Foreign (Foreign)
 import History.Types (History)
-import Prelude (Unit, bind, pure, (>>=))
 
 
 -- | broweserHistory - object with ffi to the browser history
 -- | [api](https://developer.mozilla.org/en-US/docs/Web/API/History)
 browserHistory
-  :: forall e state
-   . (IsForeign state, AsForeign state)
-  => History e state
+  :: forall e. History e
 browserHistory =
   { state: _state
   , go: _go
@@ -33,15 +28,12 @@ browserHistory =
     where
       -- note: type annotations prevent `state` from escaping its scope type error
 
-      _state :: Eff(history :: HISTORY, dom :: DOM | e) (Maybe state)
-      _state = 
-        do
-          fs <- window >>= history >>= state
-          pure (either (\_ -> Nothing) Just (runExcept (read fs)))
+      _state :: Eff(history :: HISTORY, dom :: DOM | e) Foreign
+      _state = window >>= history >>= state
 
       _go
         :: Delta
-         -> Eff (history :: HISTORY, dom :: DOM | e) Unit
+        -> Eff (history :: HISTORY, dom :: DOM | e) Unit
       _go d =
         do
           h <- window >>= history
@@ -60,22 +52,22 @@ browserHistory =
           forward h
 
       _pushState
-        :: state
+        :: Foreign
         -> DocumentTitle
         -> URL
         -> Eff (history :: HISTORY, dom :: DOM | e) Unit
       _pushState s t u = 
         do
           h <- window >>= history
-          pushState (write s) t u h
+          pushState s t u h
 
       _replaceState
-        :: state
+        :: Foreign
         -> DocumentTitle
         -> URL
         -> Eff (history :: HISTORY, dom :: DOM | e) Unit
       _replaceState s t u =
         do
           h <- window >>= history
-          replaceState (write s) t u h
+          replaceState s t u h
 

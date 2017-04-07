@@ -2,23 +2,25 @@ module History.MemoryHistory
  ( memoryHistory
  ) where
 
-import Control.Monad.Eff.Ref
-import Data.Array as A
-import Unsafe.Coerce as U
+import Prelude (($), (+), (-), (<*>), (<<<), Unit, bind, discard, id, map, max, min, negate, pure)
 import Control.Monad.Eff (Eff, runPure)
+import Control.Monad.Eff.Ref
 import Control.Monad.Eff.Unsafe (unsafeCoerceEff)
 import DOM.Event.Types (Event, EventType, customEventToEvent)
 import DOM.HTML.History (Delta(..), DocumentTitle, URL)
 import DOM.HTML.Types (HISTORY)
+import Data.Array as A
 import Data.Foldable (sequence_)
-import Data.Maybe (maybe)
+import Data.Foreign (Foreign)
+import Data.Maybe (maybe, fromJust)
 import Data.Tuple (Tuple(..), snd)
 import History.Types (History)
-import Prelude (($), (+), (-), (<*>), (<<<), Unit, bind, id, map, max, min, negate, pure)
+import Unsafe.Coerce as U
+import Partial.Unsafe (unsafePartial)
 
-type HistState state =
+type HistState =
     { current :: Int
-    , history :: Array { title :: DocumentTitle , url :: URL, state :: state }
+    , history :: Array { title :: DocumentTitle , url :: URL, state :: Foreign }
     }
 
 type EventListener eff = Event -> Eff eff Unit
@@ -26,9 +28,9 @@ type EventListener eff = Event -> Eff eff Unit
 -- | memoryHistory is an Eff action that return a history together with
 -- | corresponding `addEventListener` function
 memoryHistory
-  :: forall e state
+  :: forall e
   . Eff (ref :: REF, history :: HISTORY | e)
-      { history :: History e state
+      { history :: History e
       , addEventListener :: EventType -> EventListener (history :: HISTORY, ref :: REF | e) -> Eff (history :: HISTORY, ref :: REF | e) Unit
       }
 memoryHistory = do
@@ -45,7 +47,7 @@ memoryHistory = do
     , addEventListener: \eventType listener -> unsafeCoerceEff $ modifyRef listeners (addEventListener eventType listener)
     }
   where
-    getState s = map (\e -> e.state) $ s.history A.!! s.current
+    getState s = unsafePartial $ fromJust $ map (\e -> e.state) $ s.history A.!! s.current
 
     go i s = s { current = max 0 $ min (A.length s.history - 1) (s.current + i) }
 
